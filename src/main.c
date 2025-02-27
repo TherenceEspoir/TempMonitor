@@ -2,6 +2,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include "HD44780.h"
+#include "dht11.h"
 #include <string.h>
 
 #define	NB_ROWS	2
@@ -38,8 +39,13 @@ void defiler_BH(char *message) {
 
 int main(void)
 {
-    // Chaîne à afficher et faire défiler
-    char message[] = "Hello World";
+
+    // Variables pour le capteur
+    dht_values sensor_values;
+    int result;
+    char temp_str[16] = "Temp: -- C";
+    int counter = 0;
+  
     
     // Initialiser l'écran LCD
     HD44780_Initialize();
@@ -47,32 +53,67 @@ int main(void)
     // Configurer l'écran (2 lignes, police 5x8)
     HD44780_WriteCommand(0x28);
     
-    // Allumer l'écran, curseur éteint, pas de clignotement
-    HD44780_WriteCommand(0x0C);
-    
-    // Effacer l'écran
-    HD44780_WriteCommand(0x01);
+    HD44780_WriteCommand(0x0C); // Affichage ON, curseur OFF
+    HD44780_WriteCommand(0x01); // Effacer l'écran
+
     _delay_ms(2); // Cette commande nécessite plus de temps
     
+    /*
     while(1) {
-        // Effacer la première ligne
-        HD44780_WriteCommand(0x80); // Position au début de la première ligne
-        for(int i = 0; i < 16; i++) {
-            HD44780_WriteData(' '); // Écrire des espaces pour effacer
+        // Tous les 10 cycles, lire la température
+        if (counter % 10 == 0) {
+        result = dht_get(&sensor_values);
+        
+        if (result == 0) {
+            sprintf(temp_str, "Temp: %d C", sensor_values.temperature);
+        } else if (result == DTH_ERR_TIMEOUT) {
+            sprintf(temp_str, "Erreur timeout");
+        } else if (result == DTH_ERR_CHECKSUM) {
+            sprintf(temp_str, "Erreur checksum");
+        }
         }
         
-        // Positionner le curseur au début de la première ligne
+        //Effacer l'écran
+        HD44780_WriteCommand(0x01);  // Commande CLEAR
+        _delay_ms(2);
+
+        // Positionner le curseur en début de première ligne (adresse 0x80)
+        HD44780_WriteCommand(0x80);
+
+        // Afficher la température (ou le message d'erreur)
+        HD44780_WriteString(temp_str);
+        
+        // Attendre 2 secondes avant la prochaine lecture
+        _delay_ms(2000); 
+        counter++;
+    }*/
+
+    while(1)
+    {
+        // Lire la température du capteur DHT
+        result = dht_get_temperature(&sensor_values);
+        if(result == 0) {
+            // Lecture réussie : formater la chaîne "Temp: XX C"
+            sprintf(temp_str, "Temp: %d C", sensor_values.temperature);
+        } else if(result == DTH_ERR_TIMEOUT) {
+            sprintf(temp_str, "Timeout Err");
+        } else if(result == DTH_ERR_CHECKSUM) {
+            sprintf(temp_str, "Checksum Err");
+        }
+        
+        // Effacer l'écran
+        HD44780_WriteCommand(0x01);  // Commande CLEAR
+        _delay_ms(2);
+
+        // Positionner le curseur en début de la première ligne (adresse 0x80)
         HD44780_WriteCommand(0x80);
         
-        // Afficher le message
-        HD44780_WriteString(message);
+        // Afficher la température ou le message d'erreur
+        HD44780_WriteString(temp_str);
         
-        // Faire défiler le message d'un caractère
-        defiler_GD(message);
-        
-        // Attendre avant le prochain défilement
-        _delay_ms(500);
+        // Attendre 2 secondes avant la prochaine lecture
+        _delay_ms(2000);
     }
-    
+  
     return 0;
 }
