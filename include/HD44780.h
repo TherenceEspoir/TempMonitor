@@ -21,3 +21,4 @@ void HD44780_Initialize(void);
 void HD44780_WriteCommand(const uint8_t c);
 void HD44780_WriteData(const uint8_t c);
 int HD44780_XY2Adrr(int nbrows,int nbcols,int row,int col);
+void HD44780_WriteString(const char* str);

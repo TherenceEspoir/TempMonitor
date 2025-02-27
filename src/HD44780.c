@@ -86,6 +86,18 @@ void HD44780_WriteData(const uint8_t c)
   _delay_us(50);
 }
 
+void HD44780_WriteString(const char* str)
+{
+    while(*str)
+    {
+        LCD_RS_PORT |= (1<<LCD_RS_PIN);
+        HD44780_WriteByte(*str);
+        LCD_RS_PORT &= ~(1<<LCD_RS_PIN);
+        _delay_us(50);
+        str++;
+    }
+}
+
 int HD44780_XY2Adrr(int nbrows,int nbcols,int row,int col)
 {
   int row_offsets[]={0x00,0x40,0x14,0x54};
