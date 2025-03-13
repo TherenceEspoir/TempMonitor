@@ -41,7 +41,7 @@ clean:
 # Upload du programme sur la carte
 upload: $(DISTDIR)/$(TARGET).hex
 	$(PROGRAMMER) $(MCU) erase
-	$(PROGRAMMER) $(MCU) flash $<
+	$(PROGRAMMER) $(MCU) flash $(TARGET).hex
 	$(PROGRAMMER) $(MCU) reset
 
 # Affichage de la taille du programme

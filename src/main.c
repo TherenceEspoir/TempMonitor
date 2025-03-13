@@ -40,12 +40,13 @@ void defiler_BH(char *message) {
 int main(void)
 {
 
-    // Variables pour le capteur
+
+    /* Variables pour le capteur
     dht_values sensor_values;
     int result;
     char temp_str[16] = "Temp: -- C";
     int counter = 0;
-  
+  */
     
     // Initialiser l'écran LCD
     HD44780_Initialize();
@@ -56,7 +57,9 @@ int main(void)
     HD44780_WriteCommand(0x0C); // Affichage ON, curseur OFF
     HD44780_WriteCommand(0x01); // Effacer l'écran
 
-    _delay_ms(2); // Cette commande nécessite plus de temps
+    _delay_ms(10);
+
+   // _delay_ms(2); // Cette commande nécessite plus de temps
     
     /*
     while(1) {
@@ -88,6 +91,7 @@ int main(void)
         counter++;
     }*/
 
+    /*
     while(1)
     {
         // Lire la température du capteur DHT
@@ -114,6 +118,26 @@ int main(void)
         // Attendre 2 secondes avant la prochaine lecture
         _delay_ms(2000);
     }
-  
+    */
+
+    //Test capteur température
+    dht_values values;
+    int result=dht_get(&values);
+    int address;
+
+    if(result<0){
+        HD44780_WriteString("Erreur : ");
+        HD44780_WriteInteger(result,10);
+        }
+      else{
+        HD44780_WriteString("Temper. : ");
+        HD44780_WriteInteger(values.temperature,10);
+        HD44780_WriteString("C");
+        address=HD44780_XY2Adrr(NB_ROWS,NB_COLS,1,0);
+        HD44780_WriteCommand(LCD_ADDRSET|address);
+        HD44780_WriteString("Humidité : ");
+        HD44780_WriteInteger(values.humidity,10);
+        HD44780_WriteString("%");
+        }
     return 0;
 }

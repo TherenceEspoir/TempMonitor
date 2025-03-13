@@ -86,16 +86,16 @@ void HD44780_WriteData(const uint8_t c)
   _delay_us(50);
 }
 
-void HD44780_WriteString(const char* str)
+void HD44780_WriteString(char *string)
 {
-    while(*str)
-    {
-        LCD_RS_PORT |= (1<<LCD_RS_PIN);
-        HD44780_WriteByte(*str);
-        LCD_RS_PORT &= ~(1<<LCD_RS_PIN);
-        _delay_us(50);
-        str++;
-    }
+  for(int i=0;i<strlen(string);i++) HD44780_WriteData(string[i]);
+}
+
+#define	MAX_DIGITS	32
+void HD44780_WriteInteger(int num,int radix){
+  char s[MAX_DIGITS];
+  itoa(num,s,radix);
+  HD44780_WriteString(s);
 }
 
 int HD44780_XY2Adrr(int nbrows,int nbcols,int row,int col)

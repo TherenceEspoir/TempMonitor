@@ -1,0 +1,1 @@
+le minimal.C sera notre main , faudra virer l'autre main et initialiser la carte dans le setuphardware.
